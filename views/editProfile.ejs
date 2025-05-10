@@ -1,0 +1,235 @@
+<%- include('./partials/header', { title: 'Edit Profile' }) %>
+
+<% if (typeof user !== 'undefined') { %>
+  <%- include('./partials/navbar') %>
+<% } %>
+
+<div class="container py-4 fade-in">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap">
+    <h1 class="h2 mb-2 mb-md-0 d-flex align-items-center">
+      <div class="text-primary p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+        <i class="fas fa-user-edit fa-lg"></i>
+      </div>
+      <span>Edit Profile</span>
+    </h1>
+    <a href="/profile" class="btn btn-outline-primary d-flex align-items-center shadow-hover">
+      <i class="fas fa-arrow-left me-2"></i> Back to Profile
+    </a>
+  </div>
+
+  <% if (success && success.length > 0) { %>
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+      <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <i class="fas fa-check-circle text-success"></i>
+      </div>
+      <div><%= success %></div>
+    </div>
+  <% } %>
+
+  <% if (error && error.length > 0) { %>
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+      <div class="bg-danger bg-opacity-10 p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <i class="fas fa-exclamation-circle text-danger"></i>
+      </div>
+      <div><%= error %></div>
+    </div>
+  <% } %>
+
+  <div class="row">
+    <!-- Profile Image Upload -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h5 class="card-title mb-0">Profile Picture</h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="position-relative d-inline-block mb-4">
+            <div class="profile-image-container rounded-circle overflow-hidden mx-auto border" style="width: 150px; height: 150px; box-shadow: var(--shadow);">
+              <img 
+                id="profilePreview"
+                src="<%= profileUser.profileImage || '/images/default-avatar.png' %>" 
+                alt="<%= profileUser.username %>" 
+                class="img-fluid" 
+                style="width: 100%; height: 100%; object-fit: cover;"
+              >
+            </div>
+            <div class="position-absolute bottom-0 end-0">
+              <label for="profileImageUpload" class="btn btn-sm btn-primary rounded-circle" style="width: 34px; height: 34px;" data-bs-toggle="tooltip" title="Upload new picture">
+                <i class="fas fa-camera" style="line-height: 1.2; margin-left: -6px;"></i>
+              </label>
+              <input type="file" id="profileImageUpload" name="profileImage" accept="image/*" style="display: none;">
+            </div>
+          </div>
+          
+          <div class="alert alert-info d-flex align-items-center small py-2 px-3" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <div>Click the camera icon to upload a new profile picture.</div>
+          </div>
+          
+          <div id="uploadStatus"></div>
+          
+          <div class="mt-2">
+            <button id="uploadButton" class="btn btn-outline-primary btn-sm" disabled>
+              <i class="fas fa-upload me-1"></i> Upload Picture
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Profile Edit Form -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h5 class="card-title mb-0">Edit Profile Information</h5>
+        </div>
+        <div class="card-body">
+          <form action="/profile/update" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" class="form-control" id="username" name="username" value="<%= profileUser.username %>" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" class="form-control" id="email" name="email" value="<%= profileUser.email %>" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <input type="text" class="form-control" id="phone" name="phone" value="<%= profileUser.phone || '' %>" placeholder="Enter your phone number">
+              </div>
+              <small class="form-text text-muted">Optional: You can provide your phone number for contact purposes.</small>
+            </div>
+            <div class="mb-4">
+              <label for="bio" class="form-label">Bio</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                <textarea class="form-control" id="bio" name="bio" rows="4" placeholder="Tell us about yourself..."><%= profileUser.bio || '' %></textarea>
+              </div>
+              <small class="form-text text-muted">Optional: Share a brief description about yourself.</small>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="/profile" class="btn btn-outline-secondary me-md-2">
+                <i class="fas fa-times me-1"></i> Cancel
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Profile image preview and upload
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('profileImageUpload');
+    const previewImg = document.getElementById('profilePreview');
+    const uploadButton = document.getElementById('uploadButton');
+    const uploadStatus = document.getElementById('uploadStatus');
+    
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const file = this.files[0];
+        
+        // Check file size
+        if (file.size > 5 * 1024 * 1024) {
+          uploadStatus.innerHTML = '<div class="alert alert-danger small py-2">File too large. Maximum size is 5MB.</div>';
+          uploadButton.disabled = true;
+          return;
+        }
+        
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+          uploadStatus.innerHTML = '<div class="alert alert-danger small py-2">Only image files are allowed.</div>';
+          uploadButton.disabled = true;
+          return;
+        }
+        
+        // Preview the image
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        
+        // Enable upload button
+        uploadButton.disabled = false;
+        uploadStatus.innerHTML = '<div class="alert alert-success small py-2">Image ready for upload!</div>';
+      }
+    });
+    
+    // Handle image upload via AJAX
+    uploadButton.addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      if (!fileInput.files || !fileInput.files[0]) {
+        return;
+      }
+      
+      // Create FormData
+      const formData = new FormData();
+      formData.append('profileImage', fileInput.files[0]);
+      
+      // Show loading state
+      uploadButton.disabled = true;
+      uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Uploading...';
+      
+      try {
+        const response = await fetch('/profile/upload-image', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          uploadStatus.innerHTML = '<div class="alert alert-success small py-2">Profile image updated successfully!</div>';
+          
+          // Update all user profile images on the page
+          const navbarAvatar = document.querySelector('.navbar-avatar');
+          if (navbarAvatar) {
+            navbarAvatar.src = result.profileImage;
+          }
+          
+          // Reset button
+          uploadButton.innerHTML = '<i class="fas fa-check me-1"></i> Uploaded';
+          
+          // Reload the page if requested by the server
+          if (result.reload) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            setTimeout(() => {
+              uploadButton.innerHTML = '<i class="fas fa-upload me-1"></i> Upload Picture';
+              uploadButton.disabled = true;
+            }, 3000);
+          }
+        } else {
+          uploadStatus.innerHTML = `<div class="alert alert-danger small py-2">${result.message}</div>`;
+          uploadButton.innerHTML = '<i class="fas fa-upload me-1"></i> Try Again';
+          uploadButton.disabled = false;
+        }
+      } catch (error) {
+        uploadStatus.innerHTML = '<div class="alert alert-danger small py-2">An error occurred. Please try again.</div>';
+        uploadButton.innerHTML = '<i class="fas fa-upload me-1"></i> Try Again';
+        uploadButton.disabled = false;
+      }
+    });
+  });
+</script>
+
+<%- include('./partials/footer') %> 

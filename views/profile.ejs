@@ -1,0 +1,154 @@
+<%- include('./partials/header', { title: 'My Profile' }) %>
+
+<% if (typeof user !== 'undefined') { %>
+  <%- include('./partials/navbar') %>
+<% } %>
+
+<div class="container py-4 fade-in">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap">
+    <h1 class="h2 mb-2 mb-md-0 d-flex align-items-center">
+      <div class="bg-white text-primary p-2 rounded-circle shadow-sm me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+        <i class="fas fa-user fa-lg"></i>
+      </div>
+      <span>My Profile</span>
+    </h1>
+    <a href="/profile/edit" class="btn btn-primary d-flex align-items-center shadow-hover">
+      <i class="fas fa-user-edit me-2"></i> Edit Profile
+    </a>
+  </div>
+
+  <% if (success && success.length > 0) { %>
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+      <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <i class="fas fa-check-circle text-success"></i>
+      </div>
+      <div><%= success %></div>
+    </div>
+  <% } %>
+
+  <% if (error && error.length > 0) { %>
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+      <div class="bg-danger bg-opacity-10 p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <i class="fas fa-exclamation-circle text-danger"></i>
+      </div>
+      <div><%= error %></div>
+    </div>
+  <% } %>
+
+  <div class="row">
+    <!-- Profile Card -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+          <div class="position-relative d-inline-block mb-4">
+            <div class="profile-image-container rounded-circle overflow-hidden mx-auto border" style="width: 150px; height: 150px; box-shadow: var(--shadow);">
+              <img 
+                src="<%= profileUser.profileImage || '/images/default-avatar.png' %>" 
+                alt="<%= profileUser.username %>" 
+                class="img-fluid" 
+                style="width: 100%; height: 100%; object-fit: cover;"
+              >
+            </div>
+            <a href="/profile/edit" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle" style="width: 34px; height: 34px;" data-bs-toggle="tooltip" title="Change profile picture">
+              <i class="fas fa-camera" style="line-height: 1.2; margin-left: -6px;"></i>
+            </a>
+          </div>
+          
+          <h3 class="mb-1"><%= profileUser.username %></h3>
+          <p class="text-muted mb-3"><%= profileUser.email %></p>
+          <p class="badge <%= user.role === 'admin' ? 'bg-danger' : 'bg-info' %> mb-3">
+            <%= user.role === 'admin' ? 'Administrator' : 'User' %>
+          </p>
+          <% if (profileUser.phone) { %>
+            <div class="d-flex align-items-center justify-content-center mb-2">
+              <div class="text-primary me-2" style="width: 16px;">
+                <i class="fas fa-phone"></i>
+              </div>
+              <span><%= profileUser.phone %></span>
+            </div>
+          <% } %>
+          <div class="d-flex align-items-center justify-content-center mb-2">
+            <div class="text-primary me-2" style="width: 16px;">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <span>Member since <%= new Date(profileUser.createdAt).toLocaleDateString() %></span>
+          </div>
+          <div class="mt-4 d-flex gap-2 justify-content-center">
+            <a href="/profile/change-password" class="btn btn-outline-primary">
+              <i class="fas fa-key me-2"></i> Change Password
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Profile Details -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h5 class="card-title mb-0">Profile Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Username</h6>
+            </div>
+            <div class="col-sm-9 text-secondary">
+              <%= profileUser.username %>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Email</h6>
+            </div>
+            <div class="col-sm-9 text-secondary">
+              <%= profileUser.email %>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Phone</h6>
+            </div>
+            <div class="col-sm-9 text-secondary">
+              <%= profileUser.phone || 'Not provided' %>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Biography</h6>
+            </div>
+            <div class="col-sm-9 text-secondary">
+              <%= profileUser.bio || 'No biography provided' %>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Role</h6>
+            </div>
+            <div class="col-sm-9 text-secondary">
+              <%= profileUser.role === 'admin' ? 'Administrator' : 'User' %>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <h6 class="mb-0">Member Since</h6>
+            </div>
+            <div class="col-sm-9 text-secondary">
+              <%= new Date(profileUser.createdAt).toLocaleString() %>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-sm-12">
+              <a class="btn btn-primary" href="/profile/edit">
+                <i class="fas fa-user-edit me-2"></i> Edit Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer') %> 
